@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio Interactivo - Municipalidad de Villarrica</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 pointer-events-none">
+        <i data-lucide="check-circle-2" class="text-emerald-400 w-5 h-5"></i>
+        <span id="toast-message" class="text-sm font-medium">Notificación</span>
+    </div>
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20">
+                        <i data-lucide="building-2" class="w-8 h-8 text-cyan-300"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-cyan-500/20 text-cyan-300 text-xs px-2.5 py-0.5 rounded-full font-semibold border border-cyan-400/30 uppercase tracking-wider">Mapa de Relaciones</span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Mapa de Relaciones Programa de Acompañamiento Familiar</h1>
+                        <p class="text-slate-300 text-xs sm:text-sm mt-0.5">Plataforma interactiva de servicios, programas y atención ciudadana</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 self-end md:self-auto">
+                    <button onclick="resetFilters()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs sm:text-sm font-medium backdrop-blur-md border border-white/10 transition-all active:scale-95">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>Restablecer Filtros</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+
+        <!-- KPI Metrics Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Servicios -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Registros</p>
+                        <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1" id="kpi-total">33</h3>
+                        <p class="text-xs text-slate-500 mt-1">Oficinas y programas</p>
+                    </div>
+                    <div class="p-3 bg-blue-50 text-blue-600 rounded-2xl">
+                        <i data-lucide="layout-grid" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Areas -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Áreas de Atención</p>
+                        <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1" id="kpi-areas">10</h3>
+                        <p class="text-xs text-slate-500 mt-1">Sectores estratégicos</p>
+                    </div>
+                    <div class="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+                        <i data-lucide="layers" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contactos Directos -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Líneas Telefónicas</p>
+                        <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1" id="kpi-phones">30+</h3>
+                        <p class="text-xs text-emerald-600 font-medium mt-1 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Conexión directa
+                        </p>
+                    </div>
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+                        <i data-lucide="phone-call" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correos institucionales -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Canales Digitales</p>
+                        <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1" id="kpi-emails">20+</h3>
+                        <p class="text-xs text-cyan-600 font-medium mt-1">Mails de atención</p>
+                    </div>
+                    <div class="p-3 bg-cyan-50 text-cyan-600 rounded-2xl">
+                        <i data-lucide="mail" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search & Control Toolbar -->
+        <section class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+            <div class="flex flex-col lg:flex-row gap-4 lg:items-center justify-between">
+                <!-- Search Input -->
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </div>
+                    <input type="text" id="search-input" oninput="handleSearch()" 
+                        placeholder="Buscar por oficina, encargado, teléfono o correo..." 
+                        class="w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all text-slate-800 placeholder-slate-400">
+                    <button id="clear-search" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Controls: View Toggle & Counter -->
+                <div class="flex items-center justify-between lg:justify-end gap-4">
+                    <div class="text-xs font-medium text-slate-500">
+                        Mostrando: <span id="results-count" class="font-bold text-slate-900">33</span> resultados
+                    </div>
+
+                    <!-- View Switcher -->
+                    <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button id="btn-view-cards" onclick="setView('cards')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-blue-700 shadow-sm">
+                            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Tarjetas</span>
+                        </button>
+                        <button id="btn-view-table" onclick="setView('table')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all">
+                            <i data-lucide="table" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Tabla</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Area Chips Filter -->
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Filtrar por Área Temática:</span>
+                </div>
+                <div id="area-chips" class="flex flex-wrap gap-2 overflow-x-auto pb-1 custom-scrollbar">
+                    <!-- Dynamic Area Chips inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Area: Cards View & Table View -->
+        <section id="content-section">
+            <!-- Cards View Grid -->
+            <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Dynamic Cards -->
+            </div>
+
+            <!-- Table View Container -->
+            <div id="table-container" class="hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs uppercase tracking-wider">
+                            <tr>
+                                <th class="py-3.5 px-4 font-semibold">N°</th>
+                                <th class="py-3.5 px-4 font-semibold">Oficina / Programa</th>
+                                <th class="py-3.5 px-4 font-semibold">Área</th>
+                                <th class="py-3.5 px-4 font-semibold">Encargado(a)</th>
+                                <th class="py-3.5 px-4 font-semibold">Contacto Directo</th>
+                                <th class="py-3.5 px-4 font-semibold text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-slate-100 text-slate-700">
+                            <!-- Dynamic Table Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden bg-white rounded-2xl border border-slate-200 p-12 text-center max-w-md mx-auto my-8">
+                <div class="p-4 bg-slate-100 text-slate-400 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <i data-lucide="search-x" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">No se encontraron resultados</h3>
+                <p class="text-sm text-slate-500 mt-1">Intenta ajustando el término de búsqueda o seleccionando otra área temática.</p>
+                <button onclick="resetFilters()" class="mt-5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all">
+                    Mostrar todos los registros
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Detail Card -->
+    <div id="detail-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <!-- Modal Header -->
+            <div class="p-6 bg-gradient-to-r from-slate-900 to-indigo-950 text-white relative">
+                <button onclick="closeModal()" class="absolute top-5 right-5 text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <span id="modal-badge" class="inline-block px-3 py-1 bg-blue-500/30 text-blue-200 text-xs font-semibold rounded-full border border-blue-400/30 mb-2">
+                    Área
+                </span>
+                <h3 id="modal-title" class="text-xl sm:text-2xl font-bold leading-tight">Nombre de Oficina</h3>
+                <p id="modal-id" class="text-xs text-slate-300 mt-1 font-mono">Registro N° --</p>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 space-y-5 text-sm">
+                <!-- Encargado -->
+                <div class="flex items-start gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Encargado(a) Responsable</span>
+                        <span id="modal-encargado" class="text-slate-800 font-medium text-base">Nombre del encargado</span>
+                    </div>
+                </div>
+
+                <!-- Telefonos -->
+                <div class="space-y-2">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Teléfonos / Anexos</span>
+                    <div id="modal-phones" class="flex flex-wrap gap-2">
+                        <!-- Phones injected here -->
+                    </div>
+                </div>
+
+                <!-- Mails -->
+                <div class="space-y-2">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Correo Electrónico / Web</span>
+                    <div id="modal-emails" class="space-y-1.5">
+                        <!-- Mails injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-3">
+                <button onclick="copyModalData()" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold transition-all">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span>Copiar Ficha</span>
+                </button>
+                <button onclick="closeModal()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold transition-all">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs space-y-1">
+            <p class="font-medium text-slate-300">Municipalidad de Villarrica &copy; Directorio Interactivo de Servicios</p>
+            <p class="text-slate-500">Información actualizada para atención ciudadana y coordinación interdepartamental.</p>
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        // Dataset oficial con dirección/ubicación incorporada
+        const rawData = [
+            { id: 1, area: "Educación", oficina: "Oficina de Becas", encargado: "Lilian Inostroza", contacto: "+56 9 9452 9787 / 45 2 889 680 / becas@munivillarrica.cl", direccion: "Pedro de Valdivia 960, Villarrica" },
+            { id: 2, area: "Educación", oficina: "Valle Verde", encargado: "Pamela Romero", contacto: "452320505 / +56 9 6577 7245 / jevelazquez@hotmail.com", direccion: "Sector Valle Verde, Villarrica" },
+            { id: 3, area: "Educación", oficina: "Salud Escolar", encargado: "Salud Escolar", contacto: "Anexo: 45 2 889 659 / salud.es.vil@gmail.com", direccion: "Pedro de Valdivia 810, Villarrica" },
+            { id: 4, area: "Educación", oficina: "DAEM (Depto. Educación)", encargado: "Javier Nahuelcheo", contacto: "daem@munivillarrica.cl", direccion: "Javier Nahuelcheo s/n, Villarrica" },
+            { id: 5, area: "Vivienda", oficina: "Departamento de Vivienda", encargado: "Sandra Sarabia", contacto: "+56 9 9224 7616 / 45 2 889 607 / vivienda@munivillarrica.cl", direccion: "Andrés Bello 457, Villarrica" },
+            { id: 6, area: "Vivienda", oficina: "EGIS Municipal", encargado: "Juan Pablo Dinamarca", contacto: "+56 45 288 9660 / 45 2 889 637 / ep@munivillarrica.cl", direccion: "Andrés Bello 457, Villarrica" },
+            { id: 7, area: "Infancia", oficina: "Oficina de la Niñez (OLN)", encargado: "Claudia Cretton", contacto: "+56 9 4992 9189 / olnvillarrica@munivillarrica.cl", direccion: "Andrés Bello 457, Villarrica" },
+            { id: 8, area: "Salud", oficina: "Dirección de Salud Municipal", encargado: "Directora: Jimena Becerra García", contacto: "452415112 - 452415113 - direccion.salud.dms@gmail.com", direccion: "Manuel Antonio Matta 829, Villarrica" },
+            { id: 9, area: "Salud", oficina: "CESFAM Los Volcanes", encargado: "Miriam Zamora", contacto: "+56 9 4524 1331 / jefesome.cesfamlosvolcanes@saludvillarrica.cl", direccion: "Segunda Faja al Volcán 800, Villarrica" },
+            { id: 10, area: "Salud", oficina: "CESFAM Ñancul", encargado: "Carolina Llanquinao", contacto: "+56 45 274 7592 / carolinallanquinao1878@gmail.com", direccion: "Juan Contreras s/n, Ñancul" },
+            { id: 11, area: "Salud", oficina: "Consultorio Municipal de Licán Ray", encargado: "Jhonatan Spuler", contacto: "+56 9 6965 9446 / +56 9 9023 9084", direccion: "Cacique Marichanquín 215, Licán Ray" },
+            { id: 12, area: "Inclusión y Protección Social", oficina: "Unidad de Discapacidad", encargado: "Carolina Delgado", contacto: "+56 9 7141 1044 / Anexo: 45 2 889 604", direccion: "Andrés Bello 457, Villarrica" },
+            { id: 13, area: "Inclusión y Protección Social", oficina: "Programa Red Local de Apoyos y Cuidados", encargado: "Red Local de Cuidados", contacto: "+56 9 8234 1120 / redlocal@munivillarrica.cl", direccion: "Andrés Bello 457, Villarrica" },
+            { id: 14, area: "Inclusión y Protección Social", oficina: "Chile Atiende", encargado: "Ivan Orego", contacto: "FONO: 452655267 / www.chileatiende.cl", direccion: "Francisco Bilbao N°795, Villarrica" },
+            { id: 15, area: "Inclusión y Protección Social", oficina: "Ventanilla Única Jessica", encargado: "Jessica", contacto: "45 2 889 670", direccion: "Pedro de Valdivia 810, Edificio Municipal" },
+            { id: 16, area: "Inclusión y Protección Social", oficina: "Ventanilla Única Elizabeth", encargado: "Elizabeth", contacto: "45 2 889 663", direccion: "Pedro de Valdivia 810, Edificio Municipal" },
+            { id: 17, area: "Inclusión y Protección Social", oficina: "Ayuda Social DIDECO", encargado: "Ayuda Social DIDECO", contacto: "45 2 889 651 / asistenciasocial.villarrica@gmail.com", direccion: "Andrés Bello 457, Villarrica" },
+            { id: 18, area: "Capacitación Laboral", oficina: "Centro Empresarial", encargado: "Waldemar Trapp", contacto: "+56 9 6107 2044 / 45 2 747 550", direccion: "Esq. General Korner N°335 con Urrutia, Villarrica" },
+            { id: 19, area: "Capacitación Laboral", oficina: "FOSIS (Programas Emprendimiento)", encargado: "FOSIS / Pedro de Valdivia 398", contacto: "+56 9 5370 4083 / fosis@munivillarrica.cl", direccion: "Pedro de Valdivia 398, Villarrica" },
+            { id: 20, area: "Capacitación Laboral", oficina: "Centro de Negocios", encargado: "Equipo Centro de Negocios", contacto: "Teléfono: (45) 274 7550", direccion: "General Korner N°141, Villarrica" },
+            { id: 21, area: "Deportes", oficina: "Gimnasio Carlos Martínez", encargado: "Gimnasio Carlos Martínez", contacto: "45 2 889 602", direccion: "Avenida Presidente Ríos 715, Villarrica" },
+            { id: 22, area: "Deportes", oficina: "Oficina de Deportes", encargado: "Oficina de Deportes", contacto: "52411729 / deportes@munivillarrica.cl", direccion: "Avenida Presidente Ríos 715, Villarrica" },
+            { id: 23, area: "Comunidad Indígena", oficina: "Oficina de Asuntos Indígenas", encargado: "Alejandra Rivas Cerda", contacto: "452206643 / asuntosindigenas@munivillarrica.cl", direccion: "Andrés Bello N°457 Oficina 1, Villarrica" },
+            { id: 24, area: "Persona Mayor", oficina: "Programa Persona Mayor", encargado: "Andrea Mercado", contacto: "+56 9 9325 5448 / personamayor@munivillarrica.cl", direccion: "Andrés Bello 457, Villarrica" },
+            { id: 25, area: "Persona Mayor", oficina: "Programa MAS AMA", encargado: "Iris Medina", contacto: "920672269 / masama@munivillarrica.cl", direccion: "Avenida Estación S/N, Villarrica" },
+            { id: 26, area: "Persona Mayor", oficina: "SEDIAM Ñancul", encargado: "Solange Mercado", contacto: "+56 9 9561 9243", direccion: "Sede Comunitaria Ñancul, Villarrica" },
+            { id: 27, area: "Medio Ambiente y Gestión de Riesgos", oficina: "Apoyo a la Seguridad Alimentaria", encargado: "Pamela Nahuelpán", contacto: "+56 9 9429 7307 / profesionalddr2@munivillarrica.cl", direccion: "Pedro de Valdivia 1059, Villarrica" },
+            { id: 28, area: "Medio Ambiente y Gestión de Riesgos", oficina: "Huertos Urbanos", encargado: "Equipo Huertos Urbanos", contacto: "Contacto DDR / ddr@munivillarrica.cl", direccion: "Pedro de Valdivia 1059, Villarrica" },
+            { id: 29, area: "Medio Ambiente y Gestión de Riesgos", oficina: "Eficiencia Hídrica", encargado: "Francisca", contacto: "Unidad Gestión de Riesgos", direccion: "Pedro de Valdivia 810, Villarrica" },
+            { id: 30, area: "Medio Ambiente y Gestión de Riesgos", oficina: "Déficit Hídrico", encargado: "Francisca Miranda", contacto: "emergenciahidrica@munivillarrica.cl", direccion: "Pedro de Valdivia 810, Villarrica" },
+            { id: 31, area: "Medio Ambiente y Gestión de Riesgos", oficina: "Aseo y Ornato (Reciclaje)", encargado: "Francisco", contacto: "Anexos: 45 2 889 537 / 45 2 889 518", direccion: "Pedro de Valdivia 810, Villarrica" },
+            { id: 32, area: "Medio Ambiente y Gestión de Riesgos", oficina: "Emergencias e Incendios", encargado: "Sergio Manríquez", contacto: "emergencias@munivillarrica.cl / jefegestionriesgo@munivillarrica.cl", direccion: "Pedro de Valdivia 810, Villarrica" },
+            { id: 33, area: "Medio Ambiente y Gestión de Riesgos", oficina: "Veterinaria Municipal", encargado: "Veterinaria Municipal", contacto: "45 2 889 686 / veterinaria@munivillarrica.cl", direccion: "Camino a Licán Ray Km 1, Villarrica" }
+        ];
+
+        // Color Styles per Area
+        const areaTheme = {
+            "Educación": { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-200" },
+            "Vivienda": { bg: "bg-amber-100", text: "text-amber-800", border: "border-amber-200" },
+            "Infancia": { bg: "bg-pink-100", text: "text-pink-800", border: "border-pink-200" },
+            "Salud": { bg: "bg-emerald-100", text: "text-emerald-800", border: "border-emerald-200" },
+            "Inclusión y Protección Social": { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-200" },
+            "Capacitación Laboral": { bg: "bg-orange-100", text: "text-orange-800", border: "border-orange-200" },
+            "Deportes": { bg: "bg-cyan-100", text: "text-cyan-800", border: "border-cyan-200" },
+            "Comunidad Indígena": { bg: "bg-red-100", text: "text-red-800", border: "border-red-200" },
+            "Persona Mayor": { bg: "bg-teal-100", text: "text-teal-800", border: "border-teal-200" },
+            "Medio Ambiente y Gestión de Riesgos": { bg: "bg-lime-100", text: "text-lime-800", border: "border-lime-200" }
+        };
+
+        // State variables
+        let selectedArea = 'ALL';
+        let searchQuery = '';
+        let currentView = 'cards';
+        let activeItemModal = null;
+
+        // Helper: Parse Contact string into Phones, Emails and Raw Text
+        function parseContact(str) {
+            if (!str) return { phones: [], emails: [], text: 'Sin información' };
+            
+            const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi;
+            const phoneRegex = /(\+?56\s?9?\s?\d{4}\s?\d{4}|\b\d{8,9}\b|\b\d{2}\s?\d\s?\d{3}\s?\d{3,4}\b)/g;
+
+            const emails = str.match(emailRegex) || [];
+            const phones = str.match(phoneRegex) || [];
+
+            return {
+                phones: [...new Set(phones)],
+                emails: [...new Set(emails)],
+                text: str
+            };
+        }
+
+        // Render Area Chips
+        function renderAreaChips() {
+            const container = document.getElementById('area-chips');
+            const areas = ['ALL', ...new Set(rawData.map(i => i.area))];
+
+            container.innerHTML = areas.map(area => {
+                const count = area === 'ALL' ? rawData.length : rawData.filter(i => i.area === area).length;
+                const isSelected = selectedArea === area;
+                const activeClass = isSelected 
+                    ? 'bg-slate-900 text-white shadow-md font-bold' 
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 font-medium';
+
+                return `
+                    <button onclick="selectArea('${area}')" class="px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition-all shrink-0 ${activeClass}">
+                        <span>${area === 'ALL' ? 'Todas las Áreas' : area}</span>
+                        <span class="px-1.5 py-0.5 rounded-md text-[10px] ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}">${count}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Filter and Search Engine
+        function getFilteredData() {
+            return rawData.filter(item => {
+                const matchArea = selectedArea === 'ALL' || item.area === selectedArea;
+                const q = searchQuery.toLowerCase().trim();
+                const matchQuery = !q || 
+                    item.oficina.toLowerCase().includes(q) ||
+                    item.encargado.toLowerCase().includes(q) ||
+                    item.contacto.toLowerCase().includes(q) ||
+                    item.direccion.toLowerCase().includes(q) ||
+                    item.area.toLowerCase().includes(q);
+
+                return matchArea && matchQuery;
+            });
+        }
+
+        function updateUI() {
+            const filtered = getFilteredData();
+            document.getElementById('results-count').innerText = filtered.length;
+
+            const cardsContainer = document.getElementById('cards-container');
+            const tableContainer = document.getElementById('table-container');
+            const emptyState = document.getElementById('empty-state');
+
+            if (filtered.length === 0) {
+                cardsContainer.classList.add('hidden');
+                tableContainer.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                if (currentView === 'cards') {
+                    cardsContainer.classList.remove('hidden');
+                    tableContainer.classList.add('hidden');
+                    renderCards(filtered);
+                } else {
+                    cardsContainer.classList.add('hidden');
+                    tableContainer.classList.remove('hidden');
+                    renderTable(filtered);
+                }
+            }
+
+            renderAreaChips();
+            lucide.createIcons();
+        }
+
+        // Action Handlers
+        function selectArea(area) {
+            selectedArea = area;
+            updateUI();
+        }
+
+        function handleSearch() {
+            const val = document.getElementById('search-input').value;
+            searchQuery = val;
+            const clearBtn = document.getElementById('clear-search');
+            if (val) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            updateUI();
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            searchQuery = '';
+            document.getElementById('clear-search').classList.add('hidden');
+            updateUI();
+        }
+
+        function resetFilters() {
+            selectedArea = 'ALL';
+            clearSearch();
+        }
+
+        function setView(view) {
+            currentView = view;
+            const btnCards = document.getElementById('btn-view-cards');
+            const btnTable = document.getElementById('btn-view-table');
+
+            if (view === 'cards') {
+                btnCards.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-blue-700 shadow-sm";
+                btnTable.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all";
+            } else {
+                btnTable.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-blue-700 shadow-sm";
+                btnCards.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all";
+            }
+
+            updateUI();
+        }
+
+        // Render Cards View con Encargado, Teléfonos, Mails y Dirección VISIBLES
+        function renderCards(data) {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = data.map(item => {
+                const theme = areaTheme[item.area] || { bg: "bg-slate-100", text: "text-slate-700", border: "border-slate-200" };
+                const parsed = parseContact(item.contacto);
+
+                return `
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+                        <div class="space-y-3">
+                            <!-- Top Tag & ID -->
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-1 rounded-lg text-xs font-semibold ${theme.bg} ${theme.text} border ${theme.border}">
+                                    ${item.area}
+                                </span>
+                                <span class="text-xs font-mono text-slate-400 font-semibold">N° ${item.id}</span>
+                            </div>
+
+                            <!-- Title & Encargado -->
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors">${item.oficina}</h3>
+                                <div class="flex items-center gap-1.5 text-xs text-slate-700 font-medium mt-1 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <i data-lucide="user" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                                    <span><strong>Encargado(a):</strong> ${item.encargado}</span>
+                                </div>
+                            </div>
+
+                            <hr class="border-slate-100">
+
+                            <!-- Contacto Completo Visible: Teléfonos, Mails, Dirección -->
+                            <div class="text-xs space-y-2">
+                                <!-- Dirección -->
+                                <div class="flex items-start gap-2 text-slate-600">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-rose-500 shrink-0 mt-0.5"></i>
+                                    <span class="text-slate-700 font-medium">${item.direccion}</span>
+                                </div>
+
+                                <!-- Teléfono -->
+                                ${parsed.phones.length > 0 ? `
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="phone" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                                        <div class="flex flex-wrap gap-1">
+                                            ${parsed.phones.map(p => `
+                                                <a href="tel:${p.replace(/\s+/g, '')}" class="font-mono text-slate-800 bg-emerald-50 px-2 py-0.5 rounded text-[11px] font-semibold hover:bg-emerald-100 border border-emerald-200/60 transition-colors">
+                                                    ${p}
+                                                </a>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                <!-- Correo -->
+                                ${parsed.emails.length > 0 ? `
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="mail" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                                        <div class="flex flex-col gap-0.5 overflow-hidden">
+                                            ${parsed.emails.map(m => `
+                                                <a href="mailto:${m}" class="text-blue-700 hover:underline truncate font-medium">
+                                                    ${m}
+                                                </a>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                ${parsed.phones.length === 0 && parsed.emails.length === 0 ? `
+                                    <div class="flex items-center gap-2 text-slate-500 italic">
+                                        <i data-lucide="info" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                                        <span>${parsed.text}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Card Footer Actions -->
+                        <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <button onclick="openModal(${item.id})" class="text-xs text-blue-600 font-semibold hover:text-blue-800 flex items-center gap-1">
+                                <span>Ver Ficha</span>
+                                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                            </button>
+
+                            <div class="flex items-center gap-1">
+                                ${parsed.phones.length > 0 ? `
+                                    <a href="tel:${parsed.phones[0].replace(/\s+/g, '')}" class="p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Llamar directo">
+                                        <i data-lucide="phone-call" class="w-4 h-4"></i>
+                                    </a>
+                                ` : ''}
+                                ${parsed.emails.length > 0 ? `
+                                    <a href="mailto:${parsed.emails[0]}" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Enviar correo">
+                                        <i data-lucide="send" class="w-4 h-4"></i>
+                                    </a>
+                                ` : ''}
+                                <button onclick="copyToClipboard('${item.oficina} - ${item.encargado} - Tel: ${item.contacto} - Dir: ${item.direccion}')" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors" title="Copiar ficha completa">
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render Table View con Encargado, Teléfonos, Mails y Dirección
+        function renderTable(data) {
+            const container = document.getElementById('table-body');
+            container.innerHTML = data.map(item => {
+                const theme = areaTheme[item.area] || { bg: "bg-slate-100", text: "text-slate-700" };
+                const parsed = parseContact(item.contacto);
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3.5 px-4 font-mono text-xs text-slate-400 font-bold">${item.id}</td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-semibold text-slate-900">${item.oficina}</div>
+                            <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                                <i data-lucide="map-pin" class="w-3 h-3 text-rose-500"></i>
+                                <span>${item.direccion}</span>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${theme.bg} ${theme.text}">
+                                ${item.area}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-xs font-medium text-slate-800">${item.encargado}</td>
+                        <td class="py-3.5 px-4 text-xs text-slate-600 max-w-xs">
+                            <div class="space-y-1">
+                                ${parsed.phones.length > 0 ? `<div class="font-mono text-emerald-700 font-medium">📞 ${parsed.phones.join(', ')}</div>` : ''}
+                                ${parsed.emails.length > 0 ? `<div class="text-blue-700 truncate">✉️ ${parsed.emails.join(', ')}</div>` : ''}
+                                ${parsed.phones.length === 0 && parsed.emails.length === 0 ? `<div class="text-slate-400 italic">${parsed.text}</div>` : ''}
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <button onclick="openModal(${item.id})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Ver detalle">
+                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Modal Functionality con Dirección
+        function openModal(id) {
+            const item = rawData.find(i => i.id === id);
+            if (!item) return;
+
+            activeItemModal = item;
+            const parsed = parseContact(item.contacto);
+
+            document.getElementById('modal-title').innerText = item.oficina;
+            document.getElementById('modal-id').innerText = `Registro N° ${item.id}`;
+            document.getElementById('modal-badge').innerText = item.area;
+            document.getElementById('modal-encargado').innerText = item.encargado;
+
+            // Inyectar dirección en Modal
+            let dirContainer = document.getElementById('modal-direccion');
+            if (!dirContainer) {
+                const modalBody = document.querySelector('#detail-modal .space-y-5');
+                const dirDiv = document.createElement('div');
+                dirDiv.className = 'flex items-start gap-3 p-3.5 bg-rose-50/60 rounded-xl border border-rose-100';
+                dirDiv.innerHTML = `
+                    <div class="p-2 bg-rose-100 text-rose-700 rounded-lg">
+                        <i data-lucide="map-pin" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Ubicación / Dirección</span>
+                        <span id="modal-direccion" class="text-slate-800 font-medium text-sm"></span>
+                    </div>
+                `;
+                modalBody.insertBefore(dirDiv, modalBody.children[1]);
+                dirContainer = document.getElementById('modal-direccion');
+            }
+            dirContainer.innerText = item.direccion;
+
+            // Render Phones in Modal
+            const phonesContainer = document.getElementById('modal-phones');
+            if (parsed.phones.length > 0) {
+                phonesContainer.innerHTML = parsed.phones.map(p => `
+                    <a href="tel:${p.replace(/\s+/g, '')}" class="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-semibold transition-colors border border-emerald-200">
+                        <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-600"></i>
+                        <span>${p}</span>
+                    </a>
+                `).join('');
+            } else {
+                phonesContainer.innerHTML = `<span class="text-xs text-slate-400 italic">Sin teléfonos registrados directamente</span>`;
+            }
+
+            // Render Mails in Modal
+            const emailsContainer = document.getElementById('modal-emails');
+            if (parsed.emails.length > 0) {
+                emailsContainer.innerHTML = parsed.emails.map(m => `
+                    <a href="mailto:${m}" class="flex items-center gap-2 p-2 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-xl text-xs font-semibold transition-colors border border-blue-200">
+                        <i data-lucide="mail" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                        <span class="truncate">${m}</span>
+                    </a>
+                `).join('');
+            } else {
+                emailsContainer.innerHTML = `<span class="text-xs text-slate-400 italic">Sin correos registrados en la entrada</span>`;
+            }
+
+            const modal = document.getElementById('detail-modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('detail-modal');
+            const content = document.getElementById('modal-content');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                activeItemModal = null;
+            }, 200);
+        }
+
+        function copyModalData() {
+            if (!activeItemModal) return;
+            const text = `Ficha Municipal Villarrica:\nOficina: ${activeItemModal.oficina}\nÁrea: ${activeItemModal.area}\nEncargado(a): ${activeItemModal.encargado}\nDirección: ${activeItemModal.direccion}\nContacto: ${activeItemModal.contacto}`;
+            copyToClipboard(text);
+        }
+
+        // Copy Utility
+        function copyToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Información copiada al portapapeles");
+            } catch (err) {
+                showToast("Error al copiar");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        // Close modal on background click
+        document.getElementById('detail-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Initialize App on DOM Load
+        window.onload = function () {
+            updateUI();
+        };
+    </script>
+</body>
+</html>
